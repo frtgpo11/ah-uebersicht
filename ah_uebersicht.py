@@ -27,6 +27,9 @@ BAGS = [
     (5765, "Schwarzes Seidenpack", 6695),
     (10050, "Rote Magiestofftasche", 12065),
 ]
+# Taschen, die ich herstellen kann, auch wenn das Addon sie noch nicht kennt
+# (zusätzlich zu dem, was NaowhForever in "profMakes" gespeichert hat)
+CAN_CRAFT = {5762, 5763, 5764, 5765}
 # Deutsche Client-Namen der Materialien
 NAMES = {
     2996: "Leinenstoffballen", 2997: "Wollstoffballen", 4305: "Seidenstoffballen",
@@ -149,8 +152,20 @@ def load_vendor():
     return {int(a): int(b) for a, b in re.findall(r"\[(\d+)\]\s*=\s*(\d+)", text)}
 
 
-def load_scans():
-    db = parse_lua(SV.read_text(encoding="utf-8"))["NaowhForeverDB"]["account"]
+def load_account():
+    return parse_lua(SV.read_text(encoding="utf-8"))["NaowhForeverDB"]["account"]
+
+
+def load_known(db):
+    """Items, die irgendeiner deiner Charaktere laut Berufsfenster herstellen kann."""
+    known = set(CAN_CRAFT)
+    for char in db.get("profMakes", {}).values():
+        if isinstance(char, dict):
+            known.update(char)
+    return known
+
+
+def load_scans(db):
     scans = {}  # item -> (preis, anzahl, zeit)
     for house, data in db.get("ahPrices", {}).items():
         if not str(house).endswith("-" + FACTION):
@@ -190,7 +205,7 @@ def money(c):
         return "–"
     neg, c = c < 0, abs(int(round(c)))
     g, s, k = c // 10000, c // 100 % 100, c % 100
-    parts = ([f"{g}g"] if g else []) + ([f"{s}s"] if g or s else []) + [f"{k}c"]
+    parts = ([f"{g}g"] if g else []) + ([f"{s}s"] if g or s else []) + [f"{k}k"]
     return ("−" if neg else "") + " ".join(parts)
 
 
@@ -203,8 +218,11 @@ def wh(item, name):
 
 
 def build():
+    db = load_account()
     reagents, vendor = load_reagents(), load_vendor()
-    scans, history = load_scans()
+    vendor.update(db.get("profVendorPrices", {}))  # im Spiel gesehene Händlerpreise
+    known = load_known(db)
+    scans, history = load_scans(db)
     feed_time, feed = load_feed()
     now = datetime.now()
     rows, sections, newest = [], [], 0
@@ -235,7 +253,8 @@ def build():
         trend = " · ".join(f'{datetime.fromtimestamp(d * 86400):%d.%m.} {money(p)}' for d, p in hist)
 
         cls = "up" if profit and profit > 0 else "dn"
-        rows.append(f"""<tr><th class="cl">{wh(item, name)}</th>
+        tick = ' <span class="ok" title="kann ich herstellen">✔</span>' if item in known else ""
+        rows.append(f"""<tr><th class="cl">{wh(item, name)}{tick}</th>
 <td><b>{money(ah and ah['price'])}</b></td><td>{ah and ah['listed'] or '–'}</td>
 <td>{money(cost)}</td><td class="{cls}"><b>{money(profit)}</b></td><td>{when(ah and ah['time'])}</td></tr>""")
 
@@ -245,7 +264,7 @@ def build():
             for m, q, u, src in mats)
         sections.append(f"""
 <section class="bag">
-  <h2>{wh(item, name)}</h2>
+  <h2>{wh(item, name)}{tick}</h2>
   <div class="h2s">AH: <b>{money(ah and ah['price'])}</b> · {ah and ah['listed'] or '–'} Angebote · {ah['src'] if ah else 'kein Preis'}, {when(ah and ah['time'])}</div>
   <div class="scroll"><table class="mx">
     <thead><tr><th class="cl">Material</th><th>Menge</th><th>Stückpreis</th><th>Summe</th><th>Quelle</th></tr></thead>
@@ -272,6 +291,7 @@ def build():
   .mx td,.mx tbody th{{padding:1.4mm 1.2mm}}
   .mx th.cl{{font-size:10.5pt;white-space:normal}}
   .mx .sum th,.mx .sum td{{background:var(--band)}}
+  .ok{{color:var(--pve);font-weight:700;border:0}}
   td.up{{color:var(--pve)}} td.dn{{color:var(--horde)}}
   a{{color:inherit;text-decoration:none;border-bottom:.6px dotted var(--gold)}}
   .scroll{{overflow-x:auto}}
@@ -299,7 +319,7 @@ def build():
     <thead><tr><th class="cl">Tasche</th><th>AH-Preis</th><th>Angebote</th><th>Material</th><th>Gewinn</th><th>Scan</th></tr></thead>
     <tbody>{''.join(rows)}</tbody>
   </table></div>
-  <p class="note"><b>Hinweis:</b> Materialien zählen zum günstigeren Preis von Händler und AH. Die Einstellgebühr ist nicht eingerechnet. Preise ändern sich nur, wenn jemand im Spiel das AH scannt.</p>
+  <p class="note"><b>Hinweis:</b> <span class="ok">✔</span> = kann ich herstellen. Materialien zählen zum günstigeren Preis von Händler und AH. Die Einstellgebühr ist nicht eingerechnet. Preise ändern sich nur, wenn jemand im Spiel das AH scannt.</p>
   {''.join(sections)}
 </div>
 <footer>AH-ÜBERSICHT · WOW: FOREVER<span class="st">Stand: {now:%d.%m.%Y %H:%M} · Daten: NaowhForever-Scan vom {when(newest)}</span></footer>
