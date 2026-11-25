@@ -19,13 +19,14 @@ ACCOUNT = "1205901586#1"      # Account-Ordner unter WTF\Account, dessen Scans z
 FACTION = "Alliance"          # Alliance, Horde oder Blackwater
 AH_CUT = 0.05                 # Auktionshaus-Gebühr auf den Verkaufspreis
 
-# Taschen: Item-ID -> (deutscher Name, Rezept-Zauber-ID)
+# Taschen: (Item-ID, deutscher Name, Rezept-Zauber-ID, Plätze)
+# Namen und Plätze laut Wowhead Classic (deutscher Client)
 BAGS = [
-    (5762, "Rote Leinentasche", 6686),
-    (5763, "Rote Wollstofftasche", 6688),
-    (5764, "Grünes Seidenpack", 6693),
-    (5765, "Schwarzes Seidenpack", 6695),
-    (10050, "Rote Magiestofftasche", 12065),
+    (5762, "Rote Leinentasche", 6686, 6),
+    (5763, "Rote Wolltasche", 6688, 8),
+    (5764, "Grünes Seidenpack", 6693, 10),
+    (5765, "Schwarzes Seidenpack", 6695, 10),
+    (10051, "Rote Magiestofftasche", 12079, 12),
 ]
 # Taschen, die ich herstellen kann, auch wenn das Addon sie noch nicht kennt
 # (zusätzlich zu dem, was NaowhForever in "profMakes" gespeichert hat)
@@ -34,8 +35,8 @@ CAN_CRAFT = {5762, 5763, 5764, 5765}
 NAMES = {
     2996: "Leinenstoffballen", 2997: "Wollstoffballen", 4305: "Seidenstoffballen",
     4339: "Magiestoffballen", 2321: "Feiner Faden", 4291: "Seidenfaden",
-    2604: "Rote Färbung", 2605: "Grüne Färbung", 2325: "Schwarze Färbung",
-    4234: "Schweres Leder",
+    2604: "Roter Farbstoff", 2605: "Grüner Farbstoff", 2325: "Schwarzer Farbstoff",
+    4234: "Schweres Leder", 8343: "Schwerer Seidenfaden",
 }
 # --------------------------------------------------------------------------------
 
@@ -227,7 +228,7 @@ def build():
     now = datetime.now()
     rows, sections, newest = [], [], 0
 
-    for item, name, spell in BAGS:
+    for item, name, spell, slots in BAGS:
         ah = ah_price(item, scans, feed_time, feed)
         mats, total, complete = [], 0, True
         for mat, qty in reagents.get(spell, []):
@@ -254,7 +255,7 @@ def build():
 
         cls = "up" if profit and profit > 0 else "dn"
         tick = ' <span class="ok" title="kann ich herstellen">✔</span>' if item in known else ""
-        rows.append(f"""<tr><th class="cl">{wh(item, name)}{tick}</th>
+        rows.append(f"""<tr><th class="cl">{wh(item, name)}{tick}</th><td>{slots}</td>
 <td><b>{money(ah and ah['price'])}</b></td><td>{ah and ah['listed'] or '–'}</td>
 <td>{money(cost)}</td><td class="{cls}"><b>{money(profit)}</b></td><td>{when(ah and ah['time'])}</td></tr>""")
 
@@ -265,7 +266,7 @@ def build():
         sections.append(f"""
 <section class="bag">
   <h2>{wh(item, name)}{tick}</h2>
-  <div class="h2s">AH: <b>{money(ah and ah['price'])}</b> · {ah and ah['listed'] or '–'} Angebote · {ah['src'] if ah else 'kein Preis'}, {when(ah and ah['time'])}</div>
+  <div class="h2s"><b>{slots} Plätze</b> · AH: <b>{money(ah and ah['price'])}</b> · {ah and ah['listed'] or '–'} Angebote · {ah['src'] if ah else 'kein Preis'}, {when(ah and ah['time'])}</div>
   <div class="scroll"><table class="mx">
     <thead><tr><th class="cl">Material</th><th>Menge</th><th>Stückpreis</th><th>Summe</th><th>Quelle</th></tr></thead>
     <tbody>{mrows}
@@ -316,7 +317,7 @@ def build():
   <h2 class="first">Übersicht</h2>
   <div class="h2s">Niedrigster Sofortkaufpreis aus dem NaowhForever-Scan · Gewinn = AH-Preis − {int(AH_CUT*100)} % Gebühr − Materialkosten</div>
   <div class="scroll"><table class="mx">
-    <thead><tr><th class="cl">Tasche</th><th>AH-Preis</th><th>Angebote</th><th>Material</th><th>Gewinn</th><th>Scan</th></tr></thead>
+    <thead><tr><th class="cl">Tasche</th><th>Plätze</th><th>AH-Preis</th><th>Angebote</th><th>Material</th><th>Gewinn</th><th>Scan</th></tr></thead>
     <tbody>{''.join(rows)}</tbody>
   </table></div>
   <p class="note"><b>Hinweis:</b> <span class="ok">✔</span> = kann ich herstellen. Materialien zählen zum günstigeren Preis von Händler und AH. Die Einstellgebühr ist nicht eingerechnet. Preise ändern sich nur, wenn jemand im Spiel das AH scannt.</p>
