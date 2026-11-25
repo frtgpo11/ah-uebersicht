@@ -1,0 +1,172 @@
+/* =====================================================================
+   WoW-Forever-CI · Stylesheet fuer alle Team-Dokumente (A4, Druck/PDF)
+   Nicht pro Dokument aendern. Eigene Ergaenzungen in einem <style>-Block
+   NACH dieser Datei, und nur mit den Variablen unten.
+   ===================================================================== */
+
+@font-face{font-family:"Lora";src:url("fonts/Lora-Variable.ttf") format("truetype");font-weight:400 700;font-style:normal}
+@font-face{font-family:"Lora";src:url("fonts/Lora-Italic-Variable.ttf") format("truetype");font-weight:400 700;font-style:italic}
+@font-face{font-family:"Carlito";src:url("fonts/Carlito-Regular.ttf") format("truetype");font-weight:400;font-style:normal}
+@font-face{font-family:"Carlito";src:url("fonts/Carlito-Bold.ttf") format("truetype");font-weight:700;font-style:normal}
+@font-face{font-family:"Carlito";src:url("fonts/Carlito-Italic.ttf") format("truetype");font-weight:400;font-style:italic}
+@font-face{font-family:"Carlito";src:url("fonts/Carlito-BoldItalic.ttf") format("truetype");font-weight:700;font-style:italic}
+
+:root{
+  /* Grundfarben */
+  --papier:#FAF7F1;      /* Seitenhintergrund */
+  --karte:#FFFDF8;       /* Karten, Chips */
+  --feld:#F4EDE0;        /* Faehigkeits-Boxen */
+  --zeile:#F6F0E4;       /* jede zweite Tabellen-/Tier-Zeile */
+  --band:#F1E6CC;        /* Hinweisleisten, Tabellenkopf */
+  --linie:#E0D3B8;       /* Kartenrahmen */
+  --linie-fein:#E6DAC2;  /* Trennlinien in Tabellen */
+  --gold:#C9A85A;        /* Rahmen, Raute, Linien */
+  --gold-hell:#DCC58C;   /* innere Rahmenlinie */
+  --gold-dunkel:#B08D2F; /* Etiketten (NEU, Leveling, Verschoben) */
+  --text:#111111;        /* Fliesstext: immer fast schwarz */
+  --text-2:#222222;      /* Untertitel, Legenden, Fusszeile */
+  --hinweis:#5A3D00;     /* Update-/Aenderungs-Zeilen */
+  --titel:#8E1B1B;       /* Seiten- und Abschnittstitel */
+
+  /* Fraktionen */
+  --horde:#B8262A;  --horde-dunkel:#8E1B1B;  --horde-band:linear-gradient(90deg,#6e1712,#a12a1f);
+  --allianz:#2E5AAE; --allianz-dunkel:#1F3F7A; --allianz-band:linear-gradient(90deg,#16305e,#2b4f8f);
+  --beide:#B08D2F;
+
+  /* Kategorien */
+  --pve:#2F7D3A; --pvp:#8E1B1B; --lvl:#B08D2F;
+
+  /* Klassenfarben (Schrift und Kartenrand) */
+  --krieger:#A0703F; --paladin:#D24F8E; --jaeger:#6A9A2E; --schurke:#9A8600; --priester:#6B6B6B;
+  --schamane:#1C6FD1; --magier:#1C9CC2; --hexenmeister:#6C63C9; --druide:#E06A00;
+}
+
+@page{size:A4;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--papier)}
+body{font-family:Carlito,Calibri,sans-serif;color:var(--text);font-size:9pt;line-height:1.3;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* ---------- Seite ---------- */
+.page{width:210mm;height:297mm;padding:9mm 9mm 0;position:relative;overflow:hidden;break-after:page}
+.page:last-child{break-after:auto}
+.frame{position:absolute;inset:9mm;border:1.4px solid var(--gold);pointer-events:none}
+.frame::after{content:"";position:absolute;inset:3px;border:.6px solid var(--gold-hell)}
+.in{padding:4mm 7mm 0}
+
+/* ---------- Kopf (nur erste Seite) ---------- */
+header.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.fac{display:grid;justify-items:center;gap:2px;font-family:Lora,serif;font-size:7.6pt;letter-spacing:.25em;font-weight:700}
+.fac img{height:13mm}
+.fac.h{color:var(--horde)} .fac.a{color:#2E3F8F}
+.logo{height:22mm}
+.ttl{font-family:Lora,serif;font-weight:700;font-size:19pt;text-align:center;line-height:1.1}
+.sub{font-family:Lora,serif;font-style:italic;text-align:center;color:var(--text-2);font-size:10pt}
+.rule{display:flex;align-items:center;gap:6px;margin:1mm 0 0;color:var(--gold);font-size:7pt}
+.rule::before,.rule::after{content:"";flex:1;border-top:.8px solid var(--gold)}
+
+/* ---------- Titel ---------- */
+h1{font-family:Lora,serif;color:var(--titel);font-size:14pt;text-align:center;font-weight:700;padding-bottom:.6mm;border-bottom:.8px solid var(--gold);margin-bottom:1.2mm}
+h2{font-family:Lora,serif;color:var(--titel);font-size:13pt;text-align:center;font-weight:700;margin:3mm 0 .6mm}
+h2.first{margin-top:1.5mm}
+.h2s{text-align:center;color:var(--text-2);font-size:9.2pt;margin:0 0 2mm}
+h3{font-family:Lora,serif;font-size:11pt;font-weight:700;color:var(--text);border-bottom:.8px solid var(--gold);padding-bottom:.8mm;margin-bottom:1.2mm;display:flex;justify-content:space-between;align-items:baseline}
+h3 small{font-family:Carlito,sans-serif;font-weight:400;color:var(--text-2);font-size:8pt}
+
+/* ---------- Fraktionsband ---------- */
+.band{display:flex;align-items:center;gap:3mm;height:7.4mm;padding:0 3mm;border-radius:3px;color:#fff;font-family:Lora,serif;font-weight:700;font-size:12pt;letter-spacing:.18em;margin:1mm 0 .8mm}
+.band.h{background:var(--horde-band)} .band.a{background:var(--allianz-band)}
+.crest{width:6.6mm;height:6.6mm;border-radius:50%;background:var(--papier);display:grid;place-items:center;border:1px solid var(--gold)}
+.crest img{height:5mm}
+
+/* ---------- Tier-Buchstaben ---------- */
+.bd{display:inline-grid;place-items:center;width:5.2mm;height:5mm;border-radius:2.5px;color:#fff;font-weight:700;font-size:10pt;line-height:1;box-shadow:inset 0 -1.5px 0 rgba(0,0,0,.18)}
+.bd.sm{width:4mm;height:3.9mm;font-size:7.6pt}
+.bd.lg{width:7mm;height:6.6mm;font-size:13pt}
+.bS{background:linear-gradient(#F0861C,#DC6D06)} .bA{background:linear-gradient(#9B45E0,#7E2CC6)}
+.bB{background:linear-gradient(#2B7DE5,#1A63C9)} .bC{background:linear-gradient(#3ACB33,#22AE1F)}
+.bD{background:linear-gradient(#ECECEC,#D2D2D2);text-shadow:0 0 1px #888}
+.bF{background:linear-gradient(#8a8a8a,#6a6a6a)}
+.bCB{background:linear-gradient(135deg,#3ACB33 50%,#2B7DE5 50%);width:8.5mm}   /* geteiltes Feld, z. B. C/B */
+.dash{color:#999}
+
+/* ---------- Etiketten ---------- */
+.pl{display:inline-block;font-size:6.8pt;font-weight:700;color:#fff;border-radius:2px;padding:.5mm 1.4mm}
+.pl.pve{background:var(--pve)} .pl.pvp{background:var(--pvp)} .pl.lvl{background:var(--lvl)}
+.pl.erste{background:var(--pve)} .pl.alt{background:#7a6c55}
+.neu{font-size:6.6pt;font-weight:700;letter-spacing:.06em;background:var(--gold-dunkel);color:#fff;border-radius:2px;padding:.3mm 1.2mm}
+.mv{font-size:6.6pt;font-weight:700;color:#fff;background:var(--gold-dunkel);border-radius:2px;padding:0 1mm}
+
+/* ---------- Tier-Board ---------- */
+.board{border-top:.8px solid var(--gold);border-bottom:.8px solid var(--gold)}
+.trow{display:grid;grid-template-columns:12mm 1fr;border-top:.6px solid var(--linie-fein)}
+.trow:first-child{border-top:0}
+.trow:nth-child(odd){background:var(--zeile)}
+.tcell{display:grid;place-items:center}
+.cards{display:flex;flex-wrap:wrap;gap:1.2mm;padding:1.2mm 1.5mm}
+.cards.c4 .card{width:calc(25% - .9mm)} .cards.c5 .card{width:calc(20% - 1mm)} .cards.c2 .card{width:calc(50% - .6mm)}
+
+/* Karte: Klasse/Spec mit Icon (Randfarbe = Klasse oder Fraktion via --cc) */
+.card{display:flex;align-items:center;gap:1.6mm;width:calc(25% - .9mm);background:var(--karte);border:.6px solid var(--linie);border-left:2.5px solid var(--cc);border-radius:2px;padding:.8mm 1.5mm;min-width:0}
+.card img{width:6.4mm;height:6.4mm;border-radius:2px;flex:none}
+.card b{display:block;color:var(--cc);font-size:9.6pt;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card span{display:block;font-size:8pt;color:var(--text-2);line-height:1.1}
+.card>div{min-width:0}
+
+/* ---------- Tabellen ---------- */
+table.mx{width:100%;border-collapse:collapse;font-size:9.4pt}
+.mx thead th{font-family:Lora,serif;font-weight:700;font-size:10.5pt;background:var(--band);padding:1.2mm .8mm;text-align:center;line-height:1.15;border-bottom:.8px solid var(--gold)}
+.mx thead th small{display:block;font-family:Carlito,sans-serif;font-weight:400;font-size:8.2pt;color:var(--text-2)}
+.mx tbody tr:nth-child(odd){background:var(--zeile)}
+.mx td,.mx tbody th{padding:1mm .8mm;text-align:center;border-bottom:.6px solid var(--linie-fein)}
+.mx th.cl{text-align:left;white-space:nowrap;border-left:3px solid var(--cc,transparent);padding-left:1.6mm;font-family:Carlito,sans-serif;font-weight:700;font-size:11pt;color:var(--cc,var(--text))}
+.mx thead th.cl{font-family:Lora,serif;color:var(--text)}
+.mx th.cl img{width:5.8mm;height:5.8mm;border-radius:2px;vertical-align:middle;margin-right:1.8mm}
+.mx .sep{border-left:1px solid var(--gold)}
+/* Aenderungszelle: alt -> neu, Pfeil immer in der Spaltenmitte */
+.cg{display:inline-grid;grid-template-columns:30px 38px 22px 38px 30px;align-items:center;vertical-align:middle}
+.cg .o{justify-self:end} .cg .n{justify-self:start} .cg .m{justify-self:start;padding-left:3px;white-space:nowrap}
+.to{color:#555;text-align:center}
+.ar{font-size:9.5pt}.up{color:#2a9a2a}.dn{color:#C0392B}.eq{color:#777}
+
+/* ---------- Voelker-Karte mit Faehigkeiten ---------- */
+.race{background:var(--karte);border:.6px solid var(--linie);border-top:2.4px solid var(--fc);border-radius:3px;padding:.9mm 1.5mm 1.1mm;margin-top:1mm}
+.race.h{--fc:var(--horde-dunkel)} .race.a{--fc:var(--allianz-dunkel)}
+.rh{display:flex;gap:2.4mm;align-items:center}
+.rh img{width:8.4mm;height:8.4mm;border-radius:2px;border:.6px solid var(--gold)}
+.rh .rhm{flex:1}
+.rn{display:flex;align-items:center;gap:1.6mm}
+.rn h4{font-family:Lora,serif;font-size:13pt;font-weight:700;color:var(--fc);margin-right:2mm;line-height:1.1}
+.rn .tiers{margin-left:auto;display:inline-flex;align-items:center;gap:1mm}
+.rh i{display:block;font-family:Lora,serif;color:var(--text-2);font-size:8.4pt}
+.kz{font-size:7.8pt;line-height:1.22;margin-top:.6mm;padding-left:1.4mm;border-left:2px solid var(--gold-dunkel)}
+.kz b{color:var(--hinweis)}
+.combo{display:flex;align-items:center;flex-wrap:wrap;gap:1.2mm;background:var(--band);border-left:2px solid var(--gold);border-radius:2px;padding:.4mm 1.3mm;margin-top:.7mm}
+.cl-tag{font-size:5.8pt;font-weight:700;letter-spacing:.04em;background:var(--gold-dunkel);color:#fff;border-radius:2px;padding:.4mm 1.2mm}
+.cc{display:inline-block;font-size:7pt;font-weight:700;color:var(--cc);background:#fff;border:.8px solid var(--cc);border-radius:2px;padding:.2mm 1.4mm}
+.cc.alt{border-style:dashed}
+.abg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.2mm;margin-top:.8mm}
+.ab{background:var(--feld);border-radius:2px;padding:.9mm 1.3mm 1mm;display:flex;flex-direction:column;gap:.3mm}
+.abh{display:flex;align-items:center;gap:1mm;min-height:4mm}
+.abh>*{flex:none}
+.k{font-size:6.4pt;font-weight:700;letter-spacing:.06em;border-radius:2px;padding:.3mm 1.2mm}
+.k.akt{background:var(--fc);color:#fff}
+.k.pas{border:.8px solid #555;color:var(--text-2);background:#fff}
+.cd{margin-left:auto;font-size:6.6pt;font-weight:700;background:#fff;border:.8px solid var(--gold);border-radius:9px;padding:.2mm 1.6mm;white-space:nowrap}
+.ab b{font-size:8.8pt;line-height:1.15}
+.ab p{font-size:7.6pt;line-height:1.22}
+.chg{padding-top:.3mm;font-size:6.8pt;line-height:1.2;color:var(--hinweis);font-weight:700}
+
+/* ---------- Text ---------- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+ul.txt{margin-left:4mm;font-size:8.6pt;line-height:1.3;display:grid;gap:.8mm}
+.note{font-size:8.6pt;line-height:1.3;margin-top:1.4mm}
+.note b,ul.txt b{color:var(--text)}
+.rh2{color:var(--horde)} .ra2{color:var(--allianz)}   /* Volksname im Fliesstext */
+.legend{display:flex;justify-content:center;gap:5mm;font-size:8.2pt;color:var(--text-2);margin-bottom:1.4mm}
+.legend span{display:inline-flex;align-items:center;gap:1.4mm}
+.legend i{width:3mm;height:3mm;border-radius:1px;display:inline-block}
+
+/* ---------- Fusszeile ---------- */
+footer{position:absolute;left:9mm;right:9mm;bottom:12mm;text-align:center;font-family:Lora,serif;font-size:6.8pt;letter-spacing:.25em;color:var(--text-2)}
+footer .pn{display:block;letter-spacing:0;font-family:Carlito,sans-serif;font-weight:700;font-size:7.6pt;margin-top:.8mm}
+footer .st{position:absolute;right:7mm;bottom:0;letter-spacing:0;font-family:Carlito,sans-serif;font-size:7.4pt}
