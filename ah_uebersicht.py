@@ -20,13 +20,13 @@ FACTION = "Alliance"          # Alliance, Horde oder Blackwater
 AH_CUT = 0.05                 # Auktionshaus-Gebühr auf den Verkaufspreis
 
 # Taschen: (Item-ID, deutscher Name, Rezept-Zauber-ID, Plätze)
-# Namen und Plätze laut Wowhead Classic (deutscher Client)
+# Namen und Plätze laut Wowhead Forever (deutscher Client), Stand 26.11.2026
 BAGS = [
-    (5762, "Rote Leinentasche", 6686, 6),
-    (5763, "Rote Wolltasche", 6688, 8),
-    (5764, "Grünes Seidenpack", 6693, 10),
-    (5765, "Schwarzes Seidenpack", 6695, 10),
-    (10051, "Rote Magiestofftasche", 12079, 12),
+    (5762, "Rote Leinentasche", 6686, 8),
+    (5763, "Rote Wolltasche", 6688, 10),
+    (5764, "Grünes Seidenpack", 6693, 12),
+    (5765, "Schwarzes Seidenpack", 6695, 12),
+    (10051, "Rote Magiestofftasche", 12079, 14),
 ]
 # Taschen, die ich herstellen kann, auch wenn das Addon sie noch nicht kennt
 # (zusätzlich zu dem, was NaowhForever in "profMakes" gespeichert hat)
@@ -215,7 +215,7 @@ def when(t):
 
 
 def wh(item, name):
-    return f'<a href="https://www.wowhead.com/classic/de/item={item}" target="_blank" rel="noopener">{html.escape(name)}</a>'
+    return f'<a href="https://www.wowhead.com/forever/de/item={item}" target="_blank" rel="noopener">{html.escape(name)}</a>'
 
 
 def build():
