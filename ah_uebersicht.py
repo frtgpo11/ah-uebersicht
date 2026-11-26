@@ -46,6 +46,17 @@ NAMES = {
     4234: "Schweres Leder", 8343: "Schwerer Seidenfaden", 2320: "Grober Faden",
     249409: "Himmelblauer Farbstoff", 249430: "Magentafarbener Farbstoff",
 }
+# Item-Icons (Dateiname in docs/assets/img/icons, laut Wowhead Forever)
+ICONS = {
+    5762: "inv_misc_bag_02", 5763: "inv_misc_bag_10_red", 5764: "inv_misc_bag_07_green",
+    5765: "inv_misc_bag_07_black", 10051: "inv_misc_bag_10_red",
+    253664: "inv_misc_bag_30", 253667: "inv_misc_bag_30", 253973: "inv_misc_bag_01", 254035: "inv_misc_bag_01",
+    2996: "inv_fabric_linen_02", 2997: "inv_fabric_wool_03", 4305: "inv_fabric_silk_03",
+    4339: "inv_fabric_mageweave_03", 2321: "inv_fabric_wool_02", 4291: "inv_fabric_silk_02",
+    2604: "inv_potion_11", 2605: "inv_potion_12", 2325: "inv_potion_63",
+    4234: "inv_misc_leatherscrap_07", 8343: "inv_fabric_silk_02", 2320: "inv_fabric_linen_03",
+    249409: "inv_inscription_inkcerulean01", 249430: "inv_inscription_inkpurple02",
+}
 # --------------------------------------------------------------------------------
 
 HERE = Path(__file__).resolve().parent
@@ -223,7 +234,9 @@ def when(t):
 
 
 def wh(item, name):
-    return f'<a href="https://www.wowhead.com/forever/de/item={item}" target="_blank" rel="noopener">{html.escape(name)}</a>'
+    icon = ICONS.get(item)
+    img = f'<img class="ic" src="assets/img/icons/{icon}.jpg" alt="" loading="lazy">' if icon else ""
+    return img + f'<a href="https://www.wowhead.com/forever/de/item={item}" target="_blank" rel="noopener">{html.escape(name)}</a>'
 
 
 def build():
@@ -301,6 +314,9 @@ def build():
 <script src="assets/logo-anim.js" defer></script>
 <style>
   .la header.top .logo{{visibility:hidden}}
+  img.ic{{width:1.55em;height:1.55em;vertical-align:middle;margin:-.2em .45em -.1em 0;border-radius:3px;
+    border:1px solid #6b5326;box-shadow:0 0 0 1px rgba(201,168,90,.35),0 1px 2px rgba(0,0,0,.25)}}
+  h2 img.ic{{width:1.3em;height:1.3em;margin-top:-.25em}}
   html,body{{background:var(--papier)}}
   body{{font-size:11pt;padding:4mm}}
   .page{{width:auto;max-width:210mm;height:auto;margin:0 auto;padding:9mm 9mm 4mm;overflow:visible}}
