@@ -297,7 +297,10 @@ def build():
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AH-Übersicht Taschen · WoW: Forever</title>
 <link rel="stylesheet" href="assets/ci.css">
+<script>document.documentElement.classList.add("la");setTimeout(()=>document.documentElement.classList.remove("la"),5000)</script>
+<script src="assets/logo-anim.js" defer></script>
 <style>
+  .la header.top .logo{{visibility:hidden}}
   html,body{{background:var(--papier)}}
   body{{font-size:11pt;padding:4mm}}
   .page{{width:auto;max-width:210mm;height:auto;margin:0 auto;padding:9mm 9mm 4mm;overflow:visible}}
