@@ -28,6 +28,13 @@ BAGS = [
     (5765, "Schwarzes Seidenpack", 6695, 12),
     (10051, "Rote Magiestofftasche", 12079, 14),
 ]
+# Reagenzientaschen (nur für Handwerksmaterial), gleiche Form wie BAGS
+REAGENT_BAGS = [
+    (253664, "Leinenreagenzientasche", 1257013, 6),
+    (253667, "Wollreagenzientasche", 1257017, 8),
+    (253973, "Seidenreagenzientasche", 1257412, 10),
+    (254035, "Magiestoffreagenzientasche", 1257443, 12),
+]
 # Taschen, die ich herstellen kann, auch wenn das Addon sie noch nicht kennt
 # (zusätzlich zu dem, was NaowhForever in "profMakes" gespeichert hat)
 CAN_CRAFT = {5762, 5763, 5764, 5765}
@@ -36,7 +43,8 @@ NAMES = {
     2996: "Leinenstoffballen", 2997: "Wollstoffballen", 4305: "Seidenstoffballen",
     4339: "Magiestoffballen", 2321: "Feiner Faden", 4291: "Seidenfaden",
     2604: "Roter Farbstoff", 2605: "Grüner Farbstoff", 2325: "Schwarzer Farbstoff",
-    4234: "Schweres Leder", 8343: "Schwerer Seidenfaden",
+    4234: "Schweres Leder", 8343: "Schwerer Seidenfaden", 2320: "Grober Faden",
+    249409: "Himmelblauer Farbstoff", 249430: "Magentafarbener Farbstoff",
 }
 # --------------------------------------------------------------------------------
 
@@ -226,56 +234,63 @@ def build():
     scans, history = load_scans(db)
     feed_time, feed = load_feed()
     now = datetime.now()
-    rows, sections, newest = [], [], 0
+    newest = 0
 
-    for item, name, spell, slots in BAGS:
-        ah = ah_price(item, scans, feed_time, feed)
-        mats, total, complete = [], 0, True
-        for mat, qty in reagents.get(spell, []):
-            a = ah_price(mat, scans, feed_time, feed)
-            v = vendor.get(mat)
-            if v is not None and (a is None or v <= a["price"]):
-                unit, src = v, "Händler"
-            elif a:
-                label = "AH" if a["src"] == "Eigener Scan" else "AH-Mittel (Addon)"
-                unit, src = a["price"], f'{label} · {when(a["time"])}'
-                newest = max(newest, a["time"])
-            else:
-                unit, src, complete = None, "unbekannt", False
-            if unit is not None:
-                total += unit * qty
-            mats.append((mat, qty, unit, src))
-        cost = total if complete else None
-        profit = ah["price"] * (1 - AH_CUT) - cost if ah and cost is not None else None
-        if ah:
-            newest = max(newest, ah["time"])
+    def group(bags):
+      nonlocal newest
+      rows, sections = [], []
+      for item, name, spell, slots in bags:
+          ah = ah_price(item, scans, feed_time, feed)
+          mats, total, complete = [], 0, True
+          for mat, qty in reagents.get(spell, []):
+              a = ah_price(mat, scans, feed_time, feed)
+              v = vendor.get(mat)
+              if v is not None and (a is None or v <= a["price"]):
+                  unit, src = v, "Händler"
+              elif a:
+                  label = "AH" if a["src"] == "Eigener Scan" else "AH-Mittel (Addon)"
+                  unit, src = a["price"], f'{label} · {when(a["time"])}'
+                  newest = max(newest, a["time"])
+              else:
+                  unit, src, complete = None, "unbekannt", False
+              if unit is not None:
+                  total += unit * qty
+              mats.append((mat, qty, unit, src))
+          cost = total if complete else None
+          profit = ah["price"] * (1 - AH_CUT) - cost if ah and cost is not None else None
+          if ah:
+              newest = max(newest, ah["time"])
 
-        hist = sorted(history.get(item, {}).items())[-7:]
-        trend = " · ".join(f'{datetime.fromtimestamp(d * 86400):%d.%m.} {money(p)}' for d, p in hist)
+          hist = sorted(history.get(item, {}).items())[-7:]
+          trend = " · ".join(f'{datetime.fromtimestamp(d * 86400):%d.%m.} {money(p)}' for d, p in hist)
 
-        cls = "up" if profit and profit > 0 else "dn"
-        tick = ' <span class="ok" title="kann ich herstellen">✔</span>' if item in known else ""
-        rows.append(f"""<tr><th class="cl">{wh(item, name)}{tick}</th><td>{slots}</td>
-<td><b>{money(ah and ah['price'])}</b></td><td>{ah and ah['listed'] or '–'}</td>
-<td>{money(cost)}</td><td class="{cls}"><b>{money(profit)}</b></td><td>{when(ah and ah['time'])}</td></tr>""")
+          cls = "up" if profit and profit > 0 else "dn"
+          tick = ' <span class="ok" title="kann ich herstellen">✔</span>' if item in known else ""
+          rows.append(f"""<tr><th class="cl">{wh(item, name)}{tick}</th><td>{slots}</td>
+  <td><b>{money(ah and ah['price'])}</b></td><td>{ah and ah['listed'] or '–'}</td>
+  <td>{money(cost)}</td><td class="{cls}"><b>{money(profit)}</b></td><td>{when(ah and ah['time'])}</td></tr>""")
 
-        mrows = "".join(
-            f"<tr><th class=\"cl\">{wh(m, NAMES.get(m, f'Item {m}'))}</th><td>{q}×</td><td>{money(u)}</td>"
-            f"<td><b>{money(u * q if u is not None else None)}</b></td><td>{src}</td></tr>"
-            for m, q, u, src in mats)
-        sections.append(f"""
-<section class="bag">
-  <h2>{wh(item, name)}{tick}</h2>
-  <div class="h2s"><b>{slots} Plätze</b> · AH: <b>{money(ah and ah['price'])}</b> · {ah and ah['listed'] or '–'} Angebote · {ah['src'] if ah else 'kein Preis'}, {when(ah and ah['time'])}</div>
-  <div class="scroll"><table class="mx">
-    <thead><tr><th class="cl">Material</th><th>Menge</th><th>Stückpreis</th><th>Summe</th><th>Quelle</th></tr></thead>
-    <tbody>{mrows}
-      <tr class="sum"><th class="cl">Materialkosten</th><td></td><td></td><td><b>{money(cost)}</b></td><td></td></tr>
-      <tr class="sum"><th class="cl">Gewinn nach {int(AH_CUT*100)} % AH-Gebühr</th><td></td><td></td><td class="{cls}"><b>{money(profit)}</b></td><td></td></tr>
-    </tbody>
-  </table></div>
-  {f'<p class="note"><b>Verlauf:</b> {trend}</p>' if trend else ''}
-</section>""")
+          mrows = "".join(
+              f"<tr><th class=\"cl\">{wh(m, NAMES.get(m, f'Item {m}'))}</th><td>{q}×</td><td>{money(u)}</td>"
+              f"<td><b>{money(u * q if u is not None else None)}</b></td><td>{src}</td></tr>"
+              for m, q, u, src in mats)
+          sections.append(f"""
+  <section class="bag">
+    <h2>{wh(item, name)}{tick}</h2>
+    <div class="h2s"><b>{slots} Plätze</b> · AH: <b>{money(ah and ah['price'])}</b> · {ah and ah['listed'] or '–'} Angebote · {ah['src'] if ah else 'kein Preis'}, {when(ah and ah['time'])}</div>
+    <div class="scroll"><table class="mx">
+      <thead><tr><th class="cl">Material</th><th>Menge</th><th>Stückpreis</th><th>Summe</th><th>Quelle</th></tr></thead>
+      <tbody>{mrows}
+        <tr class="sum"><th class="cl">Materialkosten</th><td></td><td></td><td><b>{money(cost)}</b></td><td></td></tr>
+        <tr class="sum"><th class="cl">Gewinn nach {int(AH_CUT*100)} % AH-Gebühr</th><td></td><td></td><td class="{cls}"><b>{money(profit)}</b></td><td></td></tr>
+      </tbody>
+    </table></div>
+    {f'<p class="note"><b>Verlauf:</b> {trend}</p>' if trend else ''}
+  </section>""")
+      return rows, sections
+
+    rows, sections = group(BAGS)
+    rrows, rsections = group(REAGENT_BAGS)
 
     page = f"""<!doctype html>
 <html lang="de"><head><meta charset="utf-8">
@@ -299,6 +314,7 @@ def build():
   .h2s{{font-size:10pt}}
   .note{{font-size:9.5pt;text-align:center}}
   .bag{{margin-top:5mm}}
+  h1.cat{{margin-top:10mm}}
   footer{{position:static;margin-top:6mm;padding-bottom:2mm}}
   footer .st{{position:static;display:block;margin-top:1mm}}
   @media (max-width:600px){{ .fac img{{height:9mm}} .logo{{height:15mm}} .page{{padding:5mm}} .in{{padding:3mm 2mm}}
@@ -322,6 +338,14 @@ def build():
   </table></div>
   <p class="note"><b>Hinweis:</b> <span class="ok">✔</span> = kann ich herstellen. Materialien zählen zum günstigeren Preis von Händler und AH. Die Einstellgebühr ist nicht eingerechnet. Preise ändern sich nur, wenn jemand im Spiel das AH scannt.</p>
   {''.join(sections)}
+
+  <h1 class="cat">Reagenzientaschen</h1>
+  <div class="h2s">Taschen nur für Handwerksmaterial · gebunden beim Anlegen, also im AH handelbar</div>
+  <div class="scroll"><table class="mx">
+    <thead><tr><th class="cl">Tasche</th><th>Plätze</th><th>AH-Preis</th><th>Angebote</th><th>Material</th><th>Gewinn</th><th>Scan</th></tr></thead>
+    <tbody>{''.join(rrows)}</tbody>
+  </table></div>
+  {''.join(rsections)}
 </div>
 <footer>AH-ÜBERSICHT · WOW: FOREVER<span class="st">Stand: {now:%d.%m.%Y %H:%M} · Daten: NaowhForever-Scan vom {when(newest)}</span></footer>
 </div></body></html>
